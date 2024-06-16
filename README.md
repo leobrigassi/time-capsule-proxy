@@ -43,9 +43,9 @@ Method 1: Installation via setup.sh
 
 Run the following command:v
 ```
-curl -# -sSL https://github.com/leobrigassi/Time_Capsule_Proxy/raw/main/setup.sh > setup.sh 
-chmod +x setup.sh
-./setup.sh
+wget -O - https://github.com/leobrigassi/Time_Capsule_Proxy/raw/main/setup.sh | sudo bash
+cd Time_Capsule_Proxy
+./install_Time_Capsule_Proxy.sh 
 ```
 
 Method 2: Clone repository
