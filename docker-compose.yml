@@ -1,0 +1,28 @@
+services:
+  time_capsule_proxy:
+    container_name: time_capsule_proxy
+    image: qemux/qemu-arm
+    cpu_shares: 128
+    mem_limit: 512M
+    memswap_limit: 512M
+    mem_reservation: 128M
+    environment:
+      format: qcow2
+      environment:
+      RAM_SIZE: "256M"
+      CPU_CORES: "1"
+      DISK_SIZE: "1G"
+    devices:
+      - /dev/kvm
+    cap_add:
+      - NET_ADMIN
+    ports:
+      # - 58006:8006 #uncomment to enable saccess to console from browser
+      - 50022:22
+      - 50445:445
+    stop_grace_period: 2m
+    restart: unless-stopped
+    volumes:
+      - ./:/storage
+
+# Time Capsule Proxy for SmallMediaHub - Updates and readme on https://github.com/leobrigassi/Time_Capsule_Proxy
