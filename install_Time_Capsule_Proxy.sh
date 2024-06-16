@@ -140,7 +140,8 @@ fi
 # Mounting samba share
 
 echo "[OK] Initiating mounting sequence..."
-echo "[OK] Showing logs from mount_Time_Capsule_Proxy.sh..." > ./connection.log 
+touch connection.log 
+echo "[OK] Showing logs from mount_Time_Capsule_Proxy.sh..." > connection.log 
 STOP_STRING="System up and running"
 
 ./mount_Time_Capsule_Proxy.sh >/dev/null 2>&1
