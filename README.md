@@ -43,7 +43,7 @@ Method 1: Installation via setup.sh
 
 Run the following command:v
 ```
-wget -O - https://github.com/leobrigassi/Time_Capsule_Proxy/raw/main/setup.sh | sudo bash
+wget -O - https://github.com/leobrigassi/Time_Capsule_Proxy/raw/main/setup.sh | bash
 cd Time_Capsule_Proxy
 ./install_Time_Capsule_Proxy.sh 
 ```
