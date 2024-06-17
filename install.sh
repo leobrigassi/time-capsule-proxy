@@ -9,8 +9,8 @@ else
 fi
 
 downloadTC() {
-wget https://github.com/leobrigassi/Time_Capsule_Proxy/archive/refs/heads/main.tar.gz >2 /dev/null &&
-tar -xzf main.tar.gz --strip-components=1 && rm main.tar.gz >2 /dev/null &&
+wget https://github.com/leobrigassi/Time_Capsule_Proxy/archive/refs/heads/main.tar.gz &&
+tar -xzf main.tar.gz --strip-components=1 && rm main.tar.gz &&
 chmod +x setup-time-capsule-proxy.sh
 } 
 
