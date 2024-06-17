@@ -22,6 +22,13 @@ fi
 # Prompt User Inputs
 read -p "[INFO] The current script will install a local VM to allow mount of Time_Capsule as a NAS on linux with kernels 5.15 or above. 
 Any previous setup will be OVERWRITTEN. Continue? (y/N): " INSTALL
+if [[ "$INSTALL" =~ ^[Yy]$ ]]; then
+    echo "[OK] installing..."
+else
+    echo "[INFO] Installation Aborted. No change has been performed."
+    exit 1
+fi
+
 echo "Stopping previously mounted VM..."
 sudo umount /srv/tc-proxy
 echo "[OK] Waiting for VM to powerdown..."
@@ -33,12 +40,6 @@ done
 echo "[OK] VM powered down."
 fi
 
-if [[ "$INSTALL" =~ ^[Yy]$ ]]; then
-    echo "[OK] installing..."
-else
-    echo "[INFO] Installation Aborted. No change has been performed."
-    exit 1
-fi
 read -p "[INPUT] Time Capsule IPv4 (e.g. 192.168.1.10): " TC_IP
 if [ -z "$TC_IP" ]; then
     echo "[ERROR] IPv4 required. Installation aborted"
