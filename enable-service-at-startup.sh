@@ -10,7 +10,7 @@ fi
 # Configure startup service
 touch "$TCP_SERVICE_TEMP_FILE"
 echo "[Unit]
-Description=Mount Time_Capsule_Proxy and Restart Services
+Description=Mount time-capsule-proxy and Restart Services
 After=network-online.target
 Wants=network-online.target
 
@@ -23,12 +23,12 @@ RemainAfterExit=true
 WantedBy=multi-user.target" > "$TCP_SERVICE_TEMP_FILE"
 
 echo "[INFO] Scanning for previously installed daemons..."
-sudo systemctl stop Time_Capsule_Proxy.service >/dev/null 2>&1
-sudo systemctl disable Time_Capsule_Proxy.service >/dev/null 2>&1
-sudo rm $TCP_SERVICE_PATH/Time_Capsule_Proxy.service >/dev/null 2>&1
-sudo cp $TCP_SERVICE_TEMP_FILE $TCP_SERVICE_PATH/Time_Capsule_Proxy.service >/dev/null 2>&1
+sudo systemctl stop time-capsule-proxy.service >/dev/null 2>&1
+sudo systemctl disable time-capsule-proxy.service >/dev/null 2>&1
+sudo rm $TCP_SERVICE_PATH/time-capsule-proxy.service >/dev/null 2>&1
+sudo cp $TCP_SERVICE_TEMP_FILE $TCP_SERVICE_PATH/time-capsule-proxy.service >/dev/null 2>&1
 sudo systemctl daemon-reload
-sudo systemctl enable Time_Capsule_Proxy.service >/dev/null 2>&1
-sudo systemctl start Time_Capsule_Proxy.service >/dev/null 2>&1
+sudo systemctl enable time-capsule-proxy.service >/dev/null 2>&1
+sudo systemctl start time-capsule-proxy.service >/dev/null 2>&1
 
 echo "[OK] Service enabled. Will lauch automatically when system starts up and network is detected online."
