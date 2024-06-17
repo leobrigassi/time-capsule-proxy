@@ -70,11 +70,8 @@ sudo umount /srv/tc-proxy 2>/dev/null
 echo "[OK] Waiting for VM to powerdown..."
 if pgrep -f "mac=02:D2:46:5B:4E:84"; then
 ssh root@localhost -i ./id_rsa_vm -o StrictHostKeyChecking=no -p50022 "poweroff"
-while ! sudo tail -f ./vm.log 2>/dev/null | grep -q "reboot: Power down" >/dev/null; do
- sleep 5 
- if ! pgrep -f "mac=02:D2:46:5B:4E:84"; then
-    break
- fi
+while pgrep -f "mac=02:D2:46:5B:4E:84"; do
+ sleep 5
 done
 echo "[OK] VM powered down."
 fi
