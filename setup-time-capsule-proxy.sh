@@ -68,9 +68,9 @@ fi
 echo "[OK] Stopping previously mounted VM..."
 sudo umount /srv/tc-proxy 2>/dev/null
 echo "[OK] Waiting for VM to powerdown..."
-if pgrep -f "mac=02:D2:46:5B:4E:84"; then
+if pgrep -f "mac=02:D2:46:5B:4E:84"> /dev/null 2>&1; then
 ssh root@localhost -i ./id_rsa_vm -o StrictHostKeyChecking=no -p50022 "poweroff"
-while pgrep -f "mac=02:D2:46:5B:4E:84"; do
+while pgrep -f "mac=02:D2:46:5B:4E:84"> /dev/null 2>&1; do
  sleep 5
 done
 echo "[OK] VM powered down."
