@@ -16,6 +16,11 @@ check_smb_share() {
 # Function to restart the Time_Capsule_Proxy container
 restart_TCP_container() {
     ssh root@localhost -i ./id_rsa_vm -o StrictHostKeyChecking=no -p50022 "reboot"
+    if pgrep -f "mac=02:D2:46:5B:4E:84"; then
+        while pgrep -f "mac=02:D2:46:5B:4E:84"; do
+            sleep 5
+        done
+    fi
 }
 
 # Function to get current timestamp
@@ -51,7 +56,13 @@ failed_attempts=0
 
 log_message "[OK] Initiating Time_Capsule_Proxy mount process..."
 cd $TIME_CAPSULE_PROXY_PATH
-loadVM 
+
+if pgrep -f "mac=02:D2:46:5B:4E:84"; then
+    loadVM 
+fi
+
+
+
 
 while [ $retry_count -lt $MAX_RETRIES ]; do
     if check_smb_share; then
@@ -62,16 +73,15 @@ while [ $retry_count -lt $MAX_RETRIES ]; do
         failed_attempts=$((failed_attempts + 1))
         log_message "[INFO] Failed to access VM samba share. Attempt $retry_count/$MAX_RETRIES."
         if [ $failed_attempts -eq 5 ]; then
-            log_message "[INFO] Restarting Time_Capsule_Proxy container..."
+            log_message "[INFO] Restarting time-capsule-proxy container..."
             restart_TCP_container
             sleep 10
-            $TIME_CAPSULE_PROXY_PATH/vm-up.sh
         fi
         if [ $failed_attempts -eq 10 ]; then
-            log_message "[ERROR] Container taking very long to load. Restarting Time_Capsule_Proxy container..."
-            restart_TCP_container
-            sleep 10
-            $TIME_CAPSULE_PROXY_PATH/vm-up.sh
+            log_message "[ERROR] Container taking very long to load. Killing and restarting time-capsule-proxy container..."
+            sudo kill $(pgrep -f "mac=02:D2:46:5B:4E:84")
+            sleep 5
+            loadVM
         fi
         sleep $RETRY_INTERVAL
     fi
