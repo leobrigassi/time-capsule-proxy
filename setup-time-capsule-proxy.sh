@@ -1,5 +1,5 @@
 #!/bin/bash
-# Time Capsule Proxy for SmallMediaHub - Updates and readme on https://github.com/leobrigassi/Time_Capsule_Proxy
+# Time Capsule Proxy for SmallMediaHub - Updates and readme on https://github.com/leobrigassi/time-capsule-proxy
 
 # Check system requirements
 arch=$(uname -m)

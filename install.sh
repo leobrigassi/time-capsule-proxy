@@ -1,5 +1,5 @@
 #!/bin/bash
-# Time Capsule Proxy for SmallMediaHub - Updates and readme on https://github.com/leobrigassi/Time_Capsule_Proxy
+# Time Capsule Proxy for SmallMediaHub - Updates and readme on https://github.com/leobrigassi/time-capsule-proxy
 if [ "$(basename $(pwd))" == "time-capsule-proxy" ]; then
     echo "Extracting in time-capsule-proxy directory."
 else

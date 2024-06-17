@@ -1,5 +1,5 @@
 #!/bin/bash
-# Time Capsule Proxy for SmallMediaHub - Updates and readme on https://github.com/leobrigassi/Time_Capsule_Proxy
+# Time Capsule Proxy for SmallMediaHub - Updates and readme on https://github.com/leobrigassi/time-capsule-proxy
 source ./env #line_3_updated_on_first_run
 cd $TIME_CAPSULE_PROXY_PATH
 # Log file path
@@ -60,9 +60,6 @@ cd $TIME_CAPSULE_PROXY_PATH
 if pgrep -f "mac=02:D2:46:5B:4E:84"; then
     loadVM 
 fi
-
-
-
 
 while [ $retry_count -lt $MAX_RETRIES ]; do
     if check_smb_share; then

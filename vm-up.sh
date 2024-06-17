@@ -1,4 +1,5 @@
 #!/bin/bash
+# Time Capsule Proxy for SmallMediaHub - Updates and readme on https://github.com/leobrigassi/time-capsule-proxy
 # run VM
 sudo qemu-system-aarch64 \
 -M virt,accel=kvm \
