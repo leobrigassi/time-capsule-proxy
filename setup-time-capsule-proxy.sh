@@ -64,9 +64,9 @@ TIME_CAPSULE_PROXY_PATH=$(readlink -f .)
 TCP_ENV=$TIME_CAPSULE_PROXY_PATH/.env
 PUID=$(id -u)
 PGID=$(id -g)
-TCP_SERVICE_TEMP_FILE=$TIME_CAPSULE_PROXY_PATH/Time_Capsule_Proxy.service
+TCP_SERVICE_TEMP_FILE=$TIME_CAPSULE_PROXY_PATH/time-capsule-proxy.service
 TCP_SERVICE_PATH=/etc/systemd/system
-TCP_SERVICE_MOUNT_FILE=$TIME_CAPSULE_PROXY_PATH/mount_Time_Capsule_Proxy.sh
+TCP_SERVICE_MOUNT_FILE=$TIME_CAPSULE_PROXY_PATH/mount-time-capsule-proxy.sh
 
 # Deflate VM
 if [ ! -f "data.img" ]; then
@@ -96,7 +96,7 @@ echo "[OK] VM up. Please wait..."
 sleep 10
 ssh root@localhost -i ./id_rsa_vm -o StrictHostKeyChecking=no -p50022 'echo -e "'$TC_PASSWORD'\n'$TC_PASSWORD'" | passwd' >/dev/null 2>&1
 sudo mkdir -p /srv/tc-proxy >/dev/null
-chmod +x mount_Time_Capsule_Proxy.sh >/dev/null
+chmod +x mount-time-capsule-proxy.sh >/dev/null
 
 # Configure /etc/fstab
 comment="setup-vm-proxy-time-capsule.sh"
@@ -105,7 +105,7 @@ ssh root@localhost -i ./id_rsa_vm -o StrictHostKeyChecking=no -p50022 "cp /etc/f
 ssh root@localhost -i ./id_rsa_vm -o StrictHostKeyChecking=no -p50022 'echo "//'$TC_IP'/'$TC_FOLDER' /mnt/tc cifs _netdev,x-systemd.after=network-online.target'$TC_FSTAB_USER',password='$TC_PASSWORD',sec=ntlm,uid=0,vers=1.0,rw,file_mode=0777,dir_mode=0777 0 0 #_Run_setup-vm-proxy-time-capsule.sh_on_host_to_edit_this_line" | tee -a /etc/fstab.new && mv /etc/fstab.new /etc/fstab' >/dev/null 2>&1
 ssh root@localhost -i ./id_rsa_vm -o StrictHostKeyChecking=no -p50022 'echo -e "'$TC_PASSWORD'\n'$TC_PASSWORD'" | smbpasswd -a root' >/dev/null 2>&1
 
-# Configure mount_Time_Capsule_Proxy.sh
+# Configure mount-time-capsule-proxy.sh
 if grep -q "#line_3_updated_on_first_run" < "$TCP_SERVICE_MOUNT_FILE"; then
   # Line 3 exists with the target string, delete it
 sed -i 3d $TCP_SERVICE_MOUNT_FILE >/dev/null 2>&1
@@ -126,7 +126,7 @@ echo "TC_IP=$TC_IP" >> $TCP_ENV
 echo "TC_FOLDER=$TC_FOLDER" >> $TCP_ENV
 echo "TC_FSTAB_USER=$TC_FSTAB_USER" >> $TCP_ENV
 echo "TC_PASSWORD=$TC_PASSWORD" >> $TCP_ENV
-echo "TIME_CAPSULE_PROXY_SERVICE=/etc/systemd/system/Time_Capsule_Proxy.service" >> $TCP_ENV
+echo "TIME_CAPSULE_PROXY_SERVICE=/etc/systemd/system/time-capsule-proxy.service" >> $TCP_ENV
 echo "TCP_SERVICE_TEMP_FILE=$TCP_SERVICE_TEMP_FILE" >> $TCP_ENV
 echo "TCP_SERVICE_MOUNT_FILE=$TCP_SERVICE_MOUNT_FILE" >> $TCP_ENV
 echo "TCP_SERVICE_PATH=/etc/systemd/system" >> $TCP_ENV
@@ -145,10 +145,10 @@ fi
 
 echo "[OK] Initiating mounting sequence..."
 touch connection.log 
-echo "[OK] Showing logs from mount_Time_Capsule_Proxy.sh..." > connection.log 
+echo "[OK] Showing logs from mount-time-capsule-proxy.sh..." > connection.log 
 STOP_STRING="System up and running"
 
-./mount_Time_Capsule_Proxy.sh >/dev/null 2>&1
+./mount-time-capsule-proxy.sh >/dev/null 2>&1
 cleanup() {
     kill "$TAIL_PID" &>/dev/null
 }
@@ -162,15 +162,15 @@ done
 cleanup >/dev/null 2>&1
 
 # Startup service setup
-chmod +x enable_service_at_startup.sh
+chmod +x enable-service-at-startup.sh
 chmod +x vm-ssh.sh
 chmod +x vm-up.sh
 chmod +x vm-down.sh
 if [[ "$STARTUP_MOUNT" =~ ^[Yy]$ ]]; then
-    ./enable_service_at_startup.sh
+    ./enable-service-at-startup.sh
 else
-    echo "[INFO] run ./enable_service_at_startup.sh to enable automatic mount at startup."
-    echo "[INFO] run ./mount_Time_Capsule_Proxy.sh to mount manually"
+    echo "[INFO] run ./enable-service-at-startup.sh to enable automatic mount at startup."
+    echo "[INFO] run ./mount-time-capsule-proxy.sh to mount manually"
 fi
 
 echo "[OK] Process completed"
