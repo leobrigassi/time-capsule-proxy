@@ -41,11 +41,10 @@ Open a terminal in the project directory.
 
 Method 1: Installation via setup.sh 
 
-Run the following command:v
+Run the following command:
 ```
-wget -O - https://github.com/leobrigassi/Time_Capsule_Proxy/raw/main/setup.sh | bash
-cd Time_Capsule_Proxy
-./install_Time_Capsule_Proxy.sh 
+wget -O - https://github.com/leobrigassi/Time_Capsule_Proxy/raw/main/install.sh | bash
+
 ```
 
 Method 2: Clone repository
