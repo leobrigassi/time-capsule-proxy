@@ -73,7 +73,7 @@ ssh root@localhost -i ./id_rsa_vm -o StrictHostKeyChecking=no -p50022 "poweroff"
 while ! sudo tail -f ./vm.log 2>/dev/null | grep -q "reboot: Power down" >/dev/null; do
  sleep 5 
  if ! pgrep -f "mac=02:D2:46:5B:4E:84"; then
- return
+    break
  fi
 done
 echo "[OK] VM powered down."
