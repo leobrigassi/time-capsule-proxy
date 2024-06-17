@@ -7,6 +7,11 @@ else
     mkdir -p time-capsule-proxy &&
     cd time-capsule-proxy >/dev/null 2>&1
 fi
-wget https://github.com/leobrigassi/Time_Capsule_Proxy/archive/refs/heads/main.tar.gz &&
-tar -xzf main.tar.gz --strip-components=1 && rm main.tar.gz &&
+
+downloadTC() {
+wget https://github.com/leobrigassi/Time_Capsule_Proxy/archive/refs/heads/main.tar.gz >2 /dev/null &&
+tar -xzf main.tar.gz --strip-components=1 && rm main.tar.gz >2 /dev/null &&
 chmod +x setup-time-capsule-proxy.sh
+} 
+
+downloadTC >/dev/null 2>&1
