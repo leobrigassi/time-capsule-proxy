@@ -11,9 +11,9 @@ This project allows mounting a Time Capsule as a NAS on Linux systems with kerne
 **Requirements:**
 
 * Linux system with kernel version above 5.15
-* Docker & docker-compose
-* smbclient
+* qemu-system-aarch64
 * kvm support (qemu-kvm)
+* smbclient
 
 **User Inputs:**
 
@@ -24,26 +24,25 @@ This project allows mounting a Time Capsule as a NAS on Linux systems with kerne
 
 **Installation Script:**
 
-The project includes a script `install_Time_Capsule_Proxy.sh` that automates the following steps:
+The project includes a script `setup-time-capsule-proxy.sh` that automates the following steps:
 
 1. Prompts you for user input.
 2. (Optional) Extracts the pre-provisioned VM image if it doesn't exist.
-3. Starts the VM using Docker Compose.
-4. Sets up passwordless SSH connection to the VM.
-5. Configures the VM to:
+3. Starts the VM using qemu-system-aarch64
+4. Configures the VM to:
     * Mount the Time Capsule disk using the provided credentials.
     * Set up Samba to share the mounted disk with the host system.
-6. Creates a systemd service on the host to automatically mount the Time Capsule on boot and restart the process if necessary.
+5. Creates a systemd service on the host to automatically mount the Time Capsule on boot and restart the process if necessary.
 
 **Installation Steps:**
 
-Open a terminal in the project directory.
+Open a terminal in the destination directory. Program will create a time-capsule-proxy project folder.
 
-Method 1: Installation via setup.sh 
+Method 1: Installation via install.sh 
 
 Run the following command:
 ```
-wget -O - https://github.com/leobrigassi/Time_Capsule_Proxy/raw/main/install.sh | bash && cd time-capsule-proxy >/dev/null 2>&1 ; ./setup-time-capsule-proxy.sh
+wget -O - https://github.com/leobrigassi/time_capsule_proxy/raw/main/install.sh | bash && cd time-capsule-proxy 2>/dev/null ; ./setup-time-capsule-proxy.sh
 ```
 
 Method 2: Clone repository
@@ -51,10 +50,10 @@ Method 2: Clone repository
 Run the following command:
 
 ```
-git clone https://github.com/leobrigassi/Time_Capsule_Proxy.git
-cd Time_Capsule_Proxy
-chmod +x install_Time_Capsule_Proxy.sh
-./install_Time_Capsule_Proxy.sh
+git clone https://github.com/leobrigassi/time-capsule-proxy.git
+cd time-capsule-proxy
+chmod +x setup-time-capsule-proxy.sh
+./setup-time-capsule-proxy.sh
 ```
 Follow the prompts to enter your Time Capsule credentials.
 
@@ -62,11 +61,11 @@ Follow the prompts to enter your Time Capsule credentials.
 
 * `LICENSE`: License for the project code.
 * `README.md`: This file (you are reading it now).
-* `docker-compose.yml`: Defines the Docker Compose configuration for the VM.
-* `install_Time_Capsule_Proxy.sh`: Script to install and configure the Time Capsule proxy.
-* `mount_Time_Capsule_Proxy.sh`: Script that runs on the VM to mount the Time Capsule and start Samba.
+* `install.sh`: Script that downloads compressed archive of this repo and extracts it in time-capsule-proxy subfolder and runs `setup-time-capsule-proxy.sh` to initiate provisioning.
+* `setup-time-capsule-proxy.sh`: Script to install and configure the Time Capsule proxy.
+* `mount-time-capsule-proxy.sh`: Script that runs on the VM to mount the Time Capsule and start Samba.
 * `timecapsule_proxy.tar.gz`: Compressed archive containing the pre-provisioned VM image (Alpine Linux 3.13).
-* `setup.sh`: Script that downloads compressed archive of this repo and extracts it in Time_Capsule_Proxy subfolder and runs `install_Time_Capsule_Proxy.sh` to initiate install.
+* `enable_service_at_startup.sh`: Creates a systemd service file in /etc/systemd/system that runs at startup when network is detected.
 
 **Note:**
 
@@ -77,9 +76,9 @@ Follow the prompts to enter your Time Capsule credentials.
 
 1. Open a terminal in the project directory.
 2. Clone or download this project to your local machine.
-3. Run the installation script: `install_Time_Capsule_Proxy.sh`
+3. Run the setup script: `setup-time-capsule-proxy.sh`
 4. Follow the on-screen prompts to provide the required information.
-5. Wait for the script to complete the installation process.
+5. Wait for the script to complete the provisioning process.
 
 **Using the Time Capsule:**
 
@@ -87,8 +86,8 @@ Once the installation is complete, you should be able to browse the Time Capsule
 
 **Additional Notes:**
 
-* You can customize the behavior of the script and VM by editing the relevant files (e.g., `docker-compose.yml`).
-* Consult the documentation of `docker-compose`, `qemu`, and `Alpine Linux` for further details on configuration options.
+* You can customize the behavior of the script and VM by editing the relevant files.
+* Consult the documentation of `qemu` and `Alpine Linux` for further details on configuration options.
 
 
 I hope this README.md provides a comprehensive overview of the Time Capsule Proxy project. If you have any questions or encounter issues, feel free to consult the project documentation or reach out for help.
