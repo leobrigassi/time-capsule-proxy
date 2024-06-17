@@ -5,10 +5,10 @@
 echo "[OK] Stopping previously mounted VM..."
 sudo umount /srv/tc-proxy 2>/dev/null
 echo "[OK] Waiting for VM to powerdown..."
-if pgrep -f "mac=02:D2:46:5B:4E:84"; then
+if pgrep -f "mac=02:D2:46:5B:4E:84" > /dev/null 2>&1; then
 ssh root@localhost -i ./id_rsa_vm -o StrictHostKeyChecking=no -p50022 "poweroff"
 LOOP_COUNT=0
-    while pgrep -f "mac=02:D2:46:5B:4E:84" && [[ $LOOP_COUNT -lt 10 ]]; do
+    while pgrep -f "mac=02:D2:46:5B:4E:84" > /dev/null 2>&1 && [[ $LOOP_COUNT -lt 10 ]]; do
     sleep 5
     LOOP_COUNT=$((LOOP_COUNT + 1))
     done
@@ -16,12 +16,13 @@ LOOP_COUNT=0
         echo "[OK] VM powered down."
         else
         sudo kill $(pgrep -f "mac=02:D2:46:5B:4E:84")
-        echo "[ERROR] Failed to power off gracefully. VM process killed forcefully"
+        echo "[ERROR] Failed to power off gracefully. VM process killed forcefully.."
         fi
 else
     echo "[OK] VM already down."
 fi
+echo "[OK] Reloading..."
 
-source ./mount-time-capsule-proxy.sh
+sleep 3
 
-
+./mount-time-capsule-proxy.sh
