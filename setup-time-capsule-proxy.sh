@@ -165,6 +165,7 @@ cleanup >/dev/null 2>&1
 
 # Startup service setup
 chmod +x enable-service-at-startup.sh
+chmod +x restart-time-capsule-proxy.sh
 chmod +x vm-ssh.sh
 chmod +x vm-up.sh
 chmod +x vm-down.sh
