@@ -29,17 +29,6 @@ else
     exit 1
 fi
 
-echo "Stopping previously mounted VM..."
-sudo umount /srv/tc-proxy
-echo "[OK] Waiting for VM to powerdown..."
-if pgrep -f "mac=02:D2:46:5B:4E:84"; then
-ssh root@localhost -i ./id_rsa_vm -o StrictHostKeyChecking=no -p50022 "poweroff"
-while ! sudo tail -f ./vm.log | grep -q "reboot: Power down" >/dev/null; do
- sleep 5 
-done
-echo "[OK] VM powered down."
-fi
-
 read -p "[INPUT] Time Capsule IPv4 (e.g. 192.168.1.10): " TC_IP
 if [ -z "$TC_IP" ]; then
     echo "[ERROR] IPv4 required. Installation aborted"
@@ -73,6 +62,18 @@ TCP_SERVICE_MOUNT_FILE=$TIME_CAPSULE_PROXY_PATH/mount-time-capsule-proxy.sh
 if [ ! -f "data.img" ]; then
   echo "[OK] Deflating VM disk..."
   sudo tar -xf timecapsule_proxy.tar.gz
+fi
+
+# stopping previously installed VMs and mounts
+echo "Stopping previously mounted VM..."
+sudo umount /srv/tc-proxy
+echo "[OK] Waiting for VM to powerdown..."
+if pgrep -f "mac=02:D2:46:5B:4E:84"; then
+ssh root@localhost -i ./id_rsa_vm -o StrictHostKeyChecking=no -p50022 "poweroff"
+while ! sudo tail -f ./vm.log | grep -q "reboot: Power down" >/dev/null; do
+ sleep 5 
+done
+echo "[OK] VM powered down."
 fi
 
 # run VM
