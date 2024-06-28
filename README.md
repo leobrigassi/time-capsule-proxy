@@ -30,7 +30,7 @@ sudo apt install qemu-system-aarch64 qemu-kvm smbclient
 **Installation Script:**
 
 The project includes a script `setup-time-capsule-proxy.sh` that automates the following steps:
-
+w
 1. Prompts you for user input.
 2. (Optional) Extracts the pre-provisioned VM image if it doesn't exist.
 3. Starts the VM using qemu-system-aarch64
