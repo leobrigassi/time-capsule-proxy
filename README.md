@@ -50,10 +50,7 @@ Run the following command:
 wget -O - https://github.com/leobrigassi/time_capsule_proxy/raw/main/install.sh 2>/dev/null | bash && cd time-capsule-proxy 2>/dev/null ; ./setup-time-capsule-proxy.sh
 ```
 
-Alternative method: Clone repository
-
-Run the following command:
-
+Alternative method: Clone repository:
 ```
 git clone https://github.com/leobrigassi/time-capsule-proxy.git
 cd time-capsule-proxy
