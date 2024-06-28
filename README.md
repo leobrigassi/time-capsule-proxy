@@ -1,6 +1,6 @@
 ## README.md for Time Capsule Proxy Project
 
-This project allows mounting a Time Capsule as a NAS on Linux systems with kernels above 5.15, which no longer support the `sec=ntlm` mount flag.
+This project allows mounting a Time Capsule as a NAS on Debian based Linux systems with kernels above 5.15, which no longer support the `sec=ntlm` mount flag.
 
 **How it works:**
 
@@ -14,6 +14,11 @@ This project allows mounting a Time Capsule as a NAS on Linux systems with kerne
 * qemu-system-aarch64
 * kvm support (qemu-kvm)
 * smbclient
+
+To prepare your system apt install:
+```
+sudo apt install qemu-system-aarch64 qemu-kvm smbclient
+```
 
 **User Inputs:**
 
@@ -38,14 +43,14 @@ The project includes a script `setup-time-capsule-proxy.sh` that automates the f
 
 Open a terminal in the destination directory. Program will create a time-capsule-proxy project folder.
 
-Method 1: Installation via install.sh 
+Reccomended method 1: Installation via install.sh 
 
 Run the following command:
 ```
 wget -O - https://github.com/leobrigassi/time_capsule_proxy/raw/main/install.sh 2>/dev/null | bash && cd time-capsule-proxy 2>/dev/null ; ./setup-time-capsule-proxy.sh
 ```
 
-Method 2: Clone repository
+Alternative method: Clone repository
 
 Run the following command:
 
