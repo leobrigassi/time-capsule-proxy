@@ -4,7 +4,8 @@
 # Check system requirements
 arch=$(uname -m)
 if ! [[ $arch == aarch64* ]] || [[ $arch == armv* ]]; then
-    echo "System not supported. Please run from arm/aarch64 systems."
+    echo "System currently not supported. Please run from arm/aarch64 systems."
+    exit 1
 fi
 if ! which qemu-system-aarch64 > /dev/null || ! which qemu-system-arm > /dev/null  ; then
   echo "Qemu not detected.
