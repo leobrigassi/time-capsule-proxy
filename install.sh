@@ -9,8 +9,8 @@ else
 fi
 
 downloadTC() {
-wget https://github.com/leobrigassi/Time_Capsule_Proxy/archive/refs/heads/VMx86.tar.gz &&
-tar -xzf VMx86.tar.gz --strip-components=1 && rm VMx86.tar.gz &&
+wget https://github.com/leobrigassi/Time_Capsule_Proxy/archive/refs/heads/main.tar.gz &&
+tar -xzf main.tar.gz --strip-components=1 && rm main.tar.gz &&
 chmod +x setup-time-capsule-proxy.sh
 chmod +x mount-time-capsule-proxy.sh
 chmod +x enable-service-at-startup.sh
