@@ -14,10 +14,9 @@ tar -xzf VMx86.tar.gz --strip-components=1 && rm VMx86.tar.gz &&
 chmod +x setup-time-capsule-proxy.sh
 chmod +x mount-time-capsule-proxy.sh
 chmod +x enable-service-at-startup.sh
-chmod +x restart-time-capsule-proxy.sh
 chmod +x install.sh
 chmod +x vm-ssh.sh
-chmod +x vm-up.sh
+chmod +x vm-restart.sh
 chmod +x vm-down.sh
 } 
 

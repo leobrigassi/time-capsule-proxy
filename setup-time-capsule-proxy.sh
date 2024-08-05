@@ -69,6 +69,13 @@ TCP_SERVICE_TEMP_FILE=$TIME_CAPSULE_PROXY_PATH/time-capsule-proxy.service
 TCP_SERVICE_PATH=/etc/systemd/system
 TCP_SERVICE_MOUNT_FILE=$TIME_CAPSULE_PROXY_PATH/mount-time-capsule-proxy.sh
 
+chmod +x mount-time-capsule-proxy.sh
+chmod +x enable-service-at-startup.sh
+chmod +x install.sh
+chmod +x vm-ssh.sh
+chmod +x vm-restart.sh
+chmod +x vm-down.sh
+
 # Deflate VM
 if [ ! -f "data.img" ]; then
   echo "[  ] Deflating VM disk..."
