@@ -83,16 +83,16 @@ if [ ! -f "data.img" ]; then
 fi
 
 # stopping previously installed VMs and mounts
-if [ -d "/srv/tc-proxy" ]; then
-    echo "[  ] Directory /srv/tc-proxy detected. Unmounting..."
+if mountpoint -q "/srv/tc-proxy"; then
     if sudo umount /srv/tc-proxy 2>/dev/null; then
-        echo "[  ] Successfully unmounted /srv/tc-proxy."
+        echo "[  ] Mountpoint /srv/tc-proxy detected. Unmounting..."
     else
-        echo "[ERROR] Failed to unmount /srv/tc-proxy. Attempting to force unmount..."
-        if sudo umount -f /srv/tc-proxy; then
-            echo "[  ] Successfully force unmounted /srv/tc-proxy."
-        else
-            echo "[ERROR] Failed to force unmount /srv/tc-proxy."
+        echo "[INFO] Cannot gracefully unmount /srv/tc-proxy. Forcing unmount..."
+        sudo umount -f /srv/tc-proxy 2>/dev/null
+        sleep 2
+        if mountpoint -q "/srv/tc-proxy"; then
+            echo "[ERROR] Cannot unmount /srv/tc-proxy. Please umount and run setup again."
+            exit 1
         fi
     fi
 fi
@@ -112,8 +112,8 @@ if pgrep -f "mac=02:D2:46:5B:4E:84" > /dev/null 2>&1; then
                 echo "[  ] VM process killed."
             else
                 echo "[ERROR] Failed to kill VM process. Installation stopped."
+                break
             fi
-            break
         fi
     done
     if [ $ELAPSED -lt $TIMEOUT ]; then
@@ -204,26 +204,20 @@ else
 fi
 
 # Mounting samba share
-
 echo "[  ] Initiating mounting sequence..."
 touch connection.log >/dev/null 2>&1
 echo "[  ] Showing logs from mount-time-capsule-proxy.sh..." > connection.log 
-STOP_STRING="System up and running"
-
 ./mount-time-capsule-proxy.sh >/dev/null 2>&1
-cleanup() {
-    echo "[DEBUG] Cleaning up: killing PID $TAIL_PID"
-    kill "$TAIL_PID" &>/dev/null
-}
-trap cleanup EXIT
 sleep 1
-tail -fq -n3 ./connection.log >/dev/null 2>&1 &
+exec 2>/dev/null
+tail -fq -n3 ./connection.log &
 TAIL_PID=$!
-echo "[DEBUG] Started tail with PID $!"
+STOP_STRING="System up and running"
 while ! grep -q "$STOP_STRING" < ./connection.log; do
     sleep 1
 done
-cleanup >/dev/null 2>&1
+sudo kill "$TAIL_PID" >/dev/null 2>&1
+exec 2>&3
 
 # Startup service setup
 chmod +x enable-service-at-startup.sh
@@ -239,4 +233,4 @@ else
     echo "[INFO] run ./mount-time-capsule-proxy.sh to mount manually"
 fi
 
-echo "[  ] Process completed"
+echo "[OK] Process completed"
