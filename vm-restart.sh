@@ -39,7 +39,7 @@ if pgrep -f "mac=02:D2:46:5B:4E:84" > /dev/null 2>&1; then
         echo "[  ] VM powered down."
     fi
 fi
-echo "[ ] Reloading..."
+echo "[  ] Reloading..."
 sleep 3
 echo "[  ] Initiating mounting sequence..."
 touch connection.log >/dev/null 2>&1

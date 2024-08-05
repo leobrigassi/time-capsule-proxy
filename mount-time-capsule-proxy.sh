@@ -70,7 +70,7 @@ RETRY_INTERVAL=60
 retry_count=0
 failed_attempts=0
 
-log_message "[OK] Initiating Time_Capsule_Proxy mount process..."
+log_message "[  ] Initiating Time_Capsule_Proxy mount process..."
 cd $TIME_CAPSULE_PROXY_PATH
 
 if ! pgrep -f "mac=02:D2:46:5B:4E:84" > /dev/null 2>&1; then
@@ -80,7 +80,7 @@ fi
 
 while [ $retry_count -lt $MAX_RETRIES ]; do
     if check_smb_share; then
-        log_message "[OK] VM samba share is accessible."
+        log_message "[  ] VM samba share is accessible."
         break
     else
         retry_count=$((retry_count + 1))
@@ -103,8 +103,8 @@ done
 
 # Verify mount
 if ! mountpoint -q /srv/tc-proxy; then
-    log_message "[OK] /srv/tc-proxy is not mounted. Remounting..."
+    log_message "[  ] /srv/tc-proxy is not mounted. Remounting..."
     sudo umount -l /srv/tc-proxy  > /dev/null 2>&1
     sudo mount -t cifs //127.0.0.1/tc-proxy /srv/tc-proxy/ -o password="$TC_PASSWORD""$TC_FSTAB_USER",rw,uid="$PUID",iocharset=utf8,vers=3.0,nofail,file_mode=0775,dir_mode=0775,port=50445 >> "$LOG_FILE"
 fi
-log_message "[DONE] System up and running"
+log_message "[OK] System up and running"
