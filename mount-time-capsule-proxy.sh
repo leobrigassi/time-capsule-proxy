@@ -1,6 +1,6 @@
 #!/bin/bash
 # Time Capsule Proxy for SmallMediaHub - Updates and readme on https://github.com/leobrigassi/time-capsule-proxy
-source .env #line_3_updated_on_first_run
+source /home/ubuntu/tcp/.env #line_3_updated_on_first_run
 cd $TIME_CAPSULE_PROXY_PATH
 # Log file path
 LOG_FILE="$TIME_CAPSULE_PROXY_PATH/connection.log"
@@ -35,6 +35,21 @@ log_message() {
 
 # Function to load VM
 loadVM() {
+    arch=$(uname -m)
+    if [[ $arch == x86_64* ]]; then
+    sudo qemu-system-x86_64 \
+    -M q35,accel=kvm \
+    -cpu host \
+    -m 256 \
+    -boot order=c \
+    -drive file=data.img,format=raw,if=virtio \
+    -netdev user,id=net0,hostfwd=tcp::50022-:22,hostfwd=tcp::50445-:445 \
+    -device virtio-net,netdev=net0,mac=$(cat qemu.mac) \
+    -serial file:./vm.log \
+    -daemonize \
+    -display none
+    fi
+    if [[ $arch == aarch64* ]]; then
     sudo qemu-system-aarch64 \
     -M virt,accel=kvm \
     -cpu host \
@@ -46,6 +61,7 @@ loadVM() {
     -serial file:./vm.log \
     -daemonize \
     -display none
+    fi
 }
 
 # Retry logic with a timeout
