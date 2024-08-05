@@ -74,11 +74,11 @@ if [ ! -f "data.img" ]; then
   echo "[  ] Deflating VM disk..."
     if [[ $arch == x86_64* ]]; then
         sudo tar -xf timecapsule_proxy_x86.tar.gz
-        sudo rm timecapsule_proxy.tar.gz
+        sudo rm timecapsule_proxy_aarch64.tar.gz
     fi
     if [[ $arch == aarch64* ]]; then
-        sudo tar -xf timecapsule_proxy.tar.gz
-        rm timecapsule_proxy_x86.tar.gz
+        sudo tar -xf timecapsule_proxy_aarch64.tar.gz
+        sudo rm timecapsule_proxy_x86.tar.gz
     fi
 fi
 
@@ -128,7 +128,7 @@ sudo qemu-system-x86_64 \
 -cpu host \
 -m 256 \
 -boot order=c \
--drive file=data.img,format=raw,if=virtio \
+-drive file=data.img,format=qcow2,if=virtio \
 -netdev user,id=net0,hostfwd=tcp::50022-:22,hostfwd=tcp::50445-:445 \
 -device virtio-net,netdev=net0,mac=$(cat qemu.mac) \
 -serial file:./vm.log \
@@ -141,7 +141,7 @@ sudo qemu-system-aarch64 \
 -M virt,accel=kvm \
 -cpu host \
 -m 256 \
--drive file=data.img,format=raw,if=virtio \
+-drive file=data.img,format=qcow2,if=virtio \
 -bios uefi.rom \
 -device virtio-net-device,netdev=net0,mac=$(cat qemu.mac) \
 -netdev user,id=net0,hostfwd=tcp::50022-:22,hostfwd=tcp::50445-:445 \
@@ -220,12 +220,12 @@ sudo kill "$TAIL_PID" >/dev/null 2>&1
 exec 2>&3
 
 # Startup service setup
-chmod +x enable-service-at-startup.sh
-chmod +x restart-time-capsule-proxy.sh
-chmod +x install.sh
-chmod +x vm-ssh.sh
-chmod +x vm-up.sh
-chmod +x vm-down.sh
+# chmod +x enable-service-at-startup.sh
+# chmod +x restart-time-capsule-proxy.sh
+# chmod +x install.sh
+# chmod +x vm-ssh.sh
+# chmod +x vm-up.sh
+# chmod +x vm-down.sh
 if [[ "$STARTUP_MOUNT" =~ ^[Yy]$ ]]; then
     ./enable-service-at-startup.sh
 else
