@@ -3,7 +3,7 @@
 if [ "$(basename $(pwd))" == "time-capsule-proxy" ]; then
     echo "Extracting in time-capsule-proxy directory."
 else
-    echo "[OK] Creating Time_Capsule_Proxy directory."
+    echo "[ ] Creating Time_Capsule_Proxy directory."
     mkdir -p time-capsule-proxy &&
     cd time-capsule-proxy >/dev/null 2>&1
 fi

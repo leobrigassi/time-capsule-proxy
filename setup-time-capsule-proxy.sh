@@ -75,6 +75,7 @@ if [ ! -f "data.img" ]; then
     if [[ $arch == x86_64* ]]; then
         sudo tar -xf timecapsule_proxy_x86.tar.gz
         sudo rm timecapsule_proxy_aarch64.tar.gz
+        sudo rm uefi.rom
     fi
     if [[ $arch == aarch64* ]]; then
         sudo tar -xf timecapsule_proxy_aarch64.tar.gz
