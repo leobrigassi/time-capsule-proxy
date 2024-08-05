@@ -34,7 +34,7 @@ fi
 read -p "[INFO] The current script will install a local VM to allow mount of Time_Capsule as a NAS on linux with kernels 5.15 or above. 
 Any previous setup will be OVERWRITTEN. Continue? (y/N): " INSTALL
 if [[ "$INSTALL" =~ ^[Yy]$ ]]; then
-    echo "[OK] installing..."
+    echo "[  ] installing..."
 else
     echo "[INFO] Installation Aborted. No change has been performed."
     exit 1
@@ -71,7 +71,7 @@ TCP_SERVICE_MOUNT_FILE=$TIME_CAPSULE_PROXY_PATH/mount-time-capsule-proxy.sh
 
 # Deflate VM
 if [ ! -f "data.img" ]; then
-  echo "[OK] Deflating VM disk..."
+  echo "[  ] Deflating VM disk..."
     if [[ $arch == x86_64* ]]; then
         sudo tar -xf timecapsule_proxy_x86.tar.gz
         sudo rm timecapsule_proxy.tar.gz
@@ -83,15 +83,42 @@ if [ ! -f "data.img" ]; then
 fi
 
 # stopping previously installed VMs and mounts
-echo "[OK] Stopping previously mounted VM..."
-sudo umount /srv/tc-proxy 2>/dev/null
-echo "[OK] Waiting for VM to poweroff..."
-if pgrep -f "mac=02:D2:46:5B:4E:84"> /dev/null 2>&1; then
-ssh root@localhost -i ./id_rsa_vm -o StrictHostKeyChecking=no -p50022 "poweroff"
-while pgrep -f "mac=02:D2:46:5B:4E:84" > /dev/null 2>&1; do
- sleep 5
-done
-echo "[OK] VM powered down."
+if [ -d "/srv/tc-proxy" ]; then
+    echo "[  ] Directory /srv/tc-proxy detected. Unmounting..."
+    if sudo umount /srv/tc-proxy 2>/dev/null; then
+        echo "[  ] Successfully unmounted /srv/tc-proxy."
+    else
+        echo "[ERROR] Failed to unmount /srv/tc-proxy. Attempting to force unmount..."
+        if sudo umount -f /srv/tc-proxy; then
+            echo "[  ] Successfully force unmounted /srv/tc-proxy."
+        else
+            echo "[ERROR] Failed to force unmount /srv/tc-proxy."
+        fi
+    fi
+fi
+if pgrep -f "mac=02:D2:46:5B:4E:84" > /dev/null 2>&1; then
+    echo "[  ] VM detected. Sending poweroff command..."
+    ssh root@localhost -i ./id_rsa_vm -o StrictHostKeyChecking=no -p50022 "poweroff"
+    TIMEOUT=60
+    INTERVAL=5
+    ELAPSED=0
+    while pgrep -f "mac=02:D2:46:5B:4E:84" > /dev/null 2>&1; do
+        sleep $INTERVAL
+        ELAPSED=$((ELAPSED + INTERVAL))
+        if [ $ELAPSED -ge $TIMEOUT ]; then
+            echo "[ERROR] VM did not power down after $TIMEOUT seconds. Forcing termination..."
+            pkill -f "mac=02:D2:46:5B:4E:84"
+            if [ $? -eq 0 ]; then
+                echo "[  ] VM process killed."
+            else
+                echo "[ERROR] Failed to kill VM process. Installation stopped."
+            fi
+            break
+        fi
+    done
+    if [ $ELAPSED -lt $TIMEOUT ]; then
+        echo "[  ] VM powered down."
+    fi
 fi
 
 # run VM
@@ -123,12 +150,12 @@ sudo qemu-system-aarch64 \
 -display none
 fi
 
-echo "[OK] Waiting for VM to boot..."
+echo "[  ] Waiting for VM to boot..."
 while ! sudo tail -f ./vm.log | grep -q "Welcome to Alpine Linux"; do
  sleep 5 
 done
 
-echo "[OK] VM up. Provisioning VM..."
+echo "[  ] Provisioning VM..."
 sleep 10
 ssh root@localhost -i ./id_rsa_vm -o StrictHostKeyChecking=no -p50022 'echo -e "'$TC_PASSWORD'\n'$TC_PASSWORD'" | passwd' >/dev/null 2>&1
 sudo mkdir -p /srv/tc-proxy >/dev/null
@@ -170,29 +197,29 @@ TC_PASSWORD=""
 # Test VM mount
 if ssh root@localhost -i ./id_rsa_vm -o StrictHostKeyChecking=no -p50022 'mount -a && mount | grep -q //'$TC_IP'/'$TC_FOLDER''
 then
-    echo "[OK] VM running and connected to Time Capsule"
+    echo "[  ] VM connected to Time Capsule..."
 else
-    echo "[ERROR] VM unable to connect to Time Capsule. Please check credentials and IPv4 and run install again"
+    echo "[ERROR] VM unable to connect to Time Capsule. Please check credentials and IPv4 and run install again."
     exit 1
 fi
 
 # Mounting samba share
 
-echo "[OK] Initiating mounting sequence..."
-touch connection.log 
-echo "[OK] Showing logs from mount-time-capsule-proxy.sh..." > connection.log 
+echo "[  ] Initiating mounting sequence..."
+touch connection.log >/dev/null 2>&1
+echo "[  ] Showing logs from mount-time-capsule-proxy.sh..." > connection.log 
 STOP_STRING="System up and running"
 
 ./mount-time-capsule-proxy.sh >/dev/null 2>&1
-# cleanup() {
-#     echo "[DEBUG] Cleaning up: killing PID $TAIL_PID"
-#     kill "$TAIL_PID" &>/dev/null
-# }
-# trap cleanup EXIT
-# sleep 1
-# tail -fq -n3 ./connection.log >/dev/null 2>&1 &
-# TAIL_PID=$!
-# echo "[DEBUG] Started tail with PID $!"
+cleanup() {
+    echo "[DEBUG] Cleaning up: killing PID $TAIL_PID"
+    kill "$TAIL_PID" &>/dev/null
+}
+trap cleanup EXIT
+sleep 1
+tail -fq -n3 ./connection.log >/dev/null 2>&1 &
+TAIL_PID=$!
+echo "[DEBUG] Started tail with PID $!"
 while ! grep -q "$STOP_STRING" < ./connection.log; do
     sleep 1
 done
@@ -212,4 +239,4 @@ else
     echo "[INFO] run ./mount-time-capsule-proxy.sh to mount manually"
 fi
 
-echo "[OK] Process completed"
+echo "[  ] Process completed"
