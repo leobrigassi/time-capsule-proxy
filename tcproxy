@@ -1,7 +1,7 @@
 #!/bin/bash
 # tcproxy — single-file release build.
 # Source: https://github.com/leobrigassi/tcproxy
-# Built: 2026-04-20T10:01:47Z from commit 494401f
+# Built: 2026-05-21T21:10:45Z from commit 7004841
 
 # === lib/config.sh ===
 # tcproxy — configuration constants.
@@ -9,8 +9,8 @@
 # Edit values here to change behavior without touching logic.
 
 # === Version ===
-TCPROXY_COMMIT=v3.2.2
-TCPROXY_RELEASE=v3.2.2
+TCPROXY_COMMIT=v3.2.3
+TCPROXY_RELEASE=v3.2.3
 # Format: /heads/<branch> for branch builds, /tags/<version> for releases.
 TCPROXY_BRANCH=/heads/dev
 
@@ -62,9 +62,24 @@ MAC_ADDRESS=$(cat /sys/class/net/eth0/address 2>/dev/null || cat /sys/class/net/
 UNIQUE_ID=$(echo -n "${MACHINE_ID}_${CPU_INFO}_${MAC_ADDRESS}" | md5sum | awk '{print $1}')
 
 # === Dependency check ===
+# Single preflight for every subcommand. Arch-aware: picks the qemu
+# binary that matches the host and bails early on unsupported arches
+# (no point listing missing utilities on a host that can't run the VM).
+# Reports every missing command in one pass — package names and install
+# commands vary across distros, so we name what's missing and let the
+# operator pick their package manager.
 check_dependencies() {
+    local qemu_bin
+    case "$ARCH" in
+        x86_64*)  qemu_bin="qemu-system-x86_64" ;;
+        aarch64*) qemu_bin="qemu-system-aarch64" ;;
+        *)
+            echo "[ERROR] System not supported (arch: $ARCH). tcproxy requires x86_64 or aarch64."
+            exit 1
+            ;;
+    esac
     local missing=0 cmd
-    for cmd in bash sudo whoami id uname cat md5sum awk grep head readlink pwd chmod mkdir touch rm ssh whiptail smbclient; do
+    for cmd in bash sudo whoami id uname cat md5sum awk grep head readlink pwd chmod mkdir touch rm ssh whiptail smbclient "$qemu_bin"; do
         if ! command -v "$cmd" &>/dev/null; then
             echo "[ERROR] Required command '$cmd' is not installed."
             missing=1
@@ -845,31 +860,6 @@ github_download() {
 # Depends on: lib/config.sh, lib/common.sh, lib/ui.sh, lib/vm.sh,
 #             lib/mount.sh, lib/provision.sh, lib/updater.sh.
 
-# Verifies the host has the qemu flavor matching its arch plus smbclient.
-# Bails out on unsupported architectures. This is the install-time
-# pre-flight; the lib/common.sh check_dependencies covers the narrower
-# set of everyday commands.
-check_system_requirements() {
-    if [[ $ARCH == x86_64* ]]; then
-        if ! which qemu-system-x86_64 >/dev/null 2>&1 && ! which smbclient >/dev/null 2>&1; then
-            logm "Dependencies not detected.
-        sudo apt install curl qemu-system-x86 qemu-kvm smbclient
-        please install and try again."
-            exit 1
-        fi
-    elif [[ $ARCH == aarch64* ]]; then
-        if ! which qemu-system-aarch64 >/dev/null 2>&1 && ! which qemu-system-x86_64 >/dev/null 2>&1 && ! which smbclient >/dev/null 2>&1; then
-            logm "Dependencies not detected.
-        sudo apt install curl qemu-system-aarch64 qemu-kvm smbclient
-        Please install and try again."
-            exit 1
-        fi
-    else
-        logm "System not supported. Please run from x86_64 or aarch64 systems."
-        exit 1
-    fi
-}
-
 # Removes staging files after --install or --enable-service succeeds.
 # -f: staging files may not exist if --enable-service was skipped.
 post_install_cleanup() {
@@ -927,7 +917,6 @@ do_install() {
     ui_branch_warning
     create_tcproxy_folder
     download_latest_script
-    check_system_requirements
     if ! ui_confirm_close_apps; then
         if [[ $WEB_INSTALL != "TRUE" ]]; then
             prompt_user_inputs

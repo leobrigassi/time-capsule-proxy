@@ -17,9 +17,24 @@ MAC_ADDRESS=$(cat /sys/class/net/eth0/address 2>/dev/null || cat /sys/class/net/
 UNIQUE_ID=$(echo -n "${MACHINE_ID}_${CPU_INFO}_${MAC_ADDRESS}" | md5sum | awk '{print $1}')
 
 # === Dependency check ===
+# Single preflight for every subcommand. Arch-aware: picks the qemu
+# binary that matches the host and bails early on unsupported arches
+# (no point listing missing utilities on a host that can't run the VM).
+# Reports every missing command in one pass — package names and install
+# commands vary across distros, so we name what's missing and let the
+# operator pick their package manager.
 check_dependencies() {
+    local qemu_bin
+    case "$ARCH" in
+        x86_64*)  qemu_bin="qemu-system-x86_64" ;;
+        aarch64*) qemu_bin="qemu-system-aarch64" ;;
+        *)
+            echo "[ERROR] System not supported (arch: $ARCH). tcproxy requires x86_64 or aarch64."
+            exit 1
+            ;;
+    esac
     local missing=0 cmd
-    for cmd in bash sudo whoami id uname cat md5sum awk grep head readlink pwd chmod mkdir touch rm ssh whiptail smbclient; do
+    for cmd in bash sudo whoami id uname cat md5sum awk grep head readlink pwd chmod mkdir touch rm ssh whiptail smbclient "$qemu_bin"; do
         if ! command -v "$cmd" &>/dev/null; then
             echo "[ERROR] Required command '$cmd' is not installed."
             missing=1
