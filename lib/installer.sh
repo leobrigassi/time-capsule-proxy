@@ -5,31 +5,6 @@
 # Depends on: lib/config.sh, lib/common.sh, lib/ui.sh, lib/vm.sh,
 #             lib/mount.sh, lib/provision.sh, lib/updater.sh.
 
-# Verifies the host has the qemu flavor matching its arch plus smbclient.
-# Bails out on unsupported architectures. This is the install-time
-# pre-flight; the lib/common.sh check_dependencies covers the narrower
-# set of everyday commands.
-check_system_requirements() {
-    if [[ $ARCH == x86_64* ]]; then
-        if ! which qemu-system-x86_64 >/dev/null 2>&1 && ! which smbclient >/dev/null 2>&1; then
-            logm "Dependencies not detected.
-        sudo apt install curl qemu-system-x86 qemu-kvm smbclient
-        please install and try again."
-            exit 1
-        fi
-    elif [[ $ARCH == aarch64* ]]; then
-        if ! which qemu-system-aarch64 >/dev/null 2>&1 && ! which qemu-system-x86_64 >/dev/null 2>&1 && ! which smbclient >/dev/null 2>&1; then
-            logm "Dependencies not detected.
-        sudo apt install curl qemu-system-aarch64 qemu-kvm smbclient
-        Please install and try again."
-            exit 1
-        fi
-    else
-        logm "System not supported. Please run from x86_64 or aarch64 systems."
-        exit 1
-    fi
-}
-
 # Removes staging files after --install or --enable-service succeeds.
 # -f: staging files may not exist if --enable-service was skipped.
 post_install_cleanup() {
@@ -87,7 +62,6 @@ do_install() {
     ui_branch_warning
     create_tcproxy_folder
     download_latest_script
-    check_system_requirements
     if ! ui_confirm_close_apps; then
         if [[ $WEB_INSTALL != "TRUE" ]]; then
             prompt_user_inputs
