@@ -29,23 +29,27 @@ check_dependencies() {
         x86_64*)  qemu_bin="qemu-system-x86_64" ;;
         aarch64*) qemu_bin="qemu-system-aarch64" ;;
         *)
-            echo "[ERROR] System not supported (arch: $ARCH). tcproxy requires x86_64 or aarch64."
+            printf '\n========================================================================\n'
+            printf '  [ERROR] tcproxy: system not supported (arch: %s)\n' "$ARCH"
+            printf '  Requires x86_64 or aarch64.\n'
+            printf '========================================================================\n\n'
             exit 1
             ;;
     esac
-    local missing=0 cmd
+    local missing=() cmd
     for cmd in bash sudo whoami id uname cat md5sum awk grep head readlink pwd chmod mkdir touch rm ssh whiptail smbclient "$qemu_bin"; do
-        if ! command -v "$cmd" &>/dev/null; then
-            echo "[ERROR] Required command '$cmd' is not installed."
-            missing=1
-        fi
+        command -v "$cmd" &>/dev/null || missing+=("$cmd")
     done
     if ! command -v curl &>/dev/null && ! command -v wget &>/dev/null; then
-        echo "[ERROR] Both 'curl' and 'wget' are required."
-        missing=1
+        missing+=("curl or wget")
     fi
-    if [[ $missing -eq 1 ]]; then
-        echo "Please install the missing dependencies."
+    if (( ${#missing[@]} > 0 )); then
+        printf '\n========================================================================\n'
+        printf '  [ERROR] tcproxy: missing dependencies\n'
+        printf '========================================================================\n'
+        printf '    - %s\n' "${missing[@]}"
+        printf '\n  Install the listed commands with your package manager and try again.\n'
+        printf '========================================================================\n\n'
         exit 1
     fi
 }
