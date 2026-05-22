@@ -74,8 +74,9 @@ load_VM() {
                 -m "$TCPROXY_VM_MEM_MB" \
                 -boot order=c \
                 -drive file="$TCPROXY_PATH/data.img",format=qcow2,if=virtio \
-                -netdev user,id=net0,hostfwd=tcp::"$TCPROXY_VM_SSH_PORT"-:22,hostfwd=tcp::"$TCPROXY_VM_SMB_PORT"-:445 \
+                -netdev user,id=net0,hostfwd=tcp:127.0.0.1:"$TCPROXY_VM_SSH_PORT"-:22,hostfwd=tcp:127.0.0.1:"$TCPROXY_VM_SMB_PORT"-:445 \
                 -device virtio-net,netdev=net0,mac=$(cat "$TCPROXY_PATH/qemu.mac") \
+                -fw_cfg name=opt/tcproxy/authorized_keys,file="$TCPROXY_PATH/id_rsa_vm.pub" \
                 -serial file:"$TCPROXY_PATH/.vm-serial-file" \
                 -daemonize \
                 -display none
@@ -87,7 +88,8 @@ load_VM() {
                 -drive file="$TCPROXY_PATH/data.img",format=qcow2,if=virtio \
                 -bios "$TCPROXY_PATH/uefi.rom" \
                 -device virtio-net-device,netdev=net0,mac=$(cat "$TCPROXY_PATH/qemu.mac") \
-                -netdev user,id=net0,hostfwd=tcp::"$TCPROXY_VM_SSH_PORT"-:22,hostfwd=tcp::"$TCPROXY_VM_SMB_PORT"-:445 \
+                -netdev user,id=net0,hostfwd=tcp:127.0.0.1:"$TCPROXY_VM_SSH_PORT"-:22,hostfwd=tcp:127.0.0.1:"$TCPROXY_VM_SMB_PORT"-:445 \
+                -fw_cfg name=opt/tcproxy/authorized_keys,file="$TCPROXY_PATH/id_rsa_vm.pub" \
                 -serial file:"$TCPROXY_PATH/.vm-serial-file" \
                 -daemonize \
                 -display none
