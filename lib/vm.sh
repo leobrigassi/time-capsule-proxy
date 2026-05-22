@@ -6,12 +6,12 @@
 # Probes whether ssh into the VM needs sudo. Sets SUDOREQUIRED to
 # "" or "sudo " for later callers. Exits on unreachable VM.
 testing_ssh_permission_requirements() {
-    ssh root@localhost -i ./id_rsa_vm -o StrictHostKeyChecking=no -p"$TCPROXY_VM_SSH_PORT" "ls"
+    ssh root@localhost -i ./id_rsa_vm -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -p"$TCPROXY_VM_SSH_PORT" "ls"
     SUDOREQUIREDEXIT=$?
     if [ $SUDOREQUIREDEXIT -eq 0 ]; then
         SUDOREQUIRED=""
     else
-        sudo ssh root@localhost -i ./id_rsa_vm -o StrictHostKeyChecking=no -p"$TCPROXY_VM_SSH_PORT" "ls"
+        sudo ssh root@localhost -i ./id_rsa_vm -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -p"$TCPROXY_VM_SSH_PORT" "ls"
         SUDOREQUIREDEXIT=$?
         if [ $SUDOREQUIREDEXIT -eq 0 ]; then
             SUDOREQUIRED="sudo "
@@ -28,7 +28,7 @@ testing_ssh_permission_requirements() {
 stopping_VM() {
     if pgrep -f "mac=$TCPROXY_VM_MAC" >/dev/null 2>&1; then
         logm "VM detected. Sending poweroff command..."
-        $SUDOREQUIRED ssh root@localhost -i ./id_rsa_vm -o StrictHostKeyChecking=no -p"$TCPROXY_VM_SSH_PORT" "poweroff"
+        $SUDOREQUIRED ssh root@localhost -i ./id_rsa_vm -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -p"$TCPROXY_VM_SSH_PORT" "poweroff"
         TIMEOUT_ST=$TCPROXY_VM_STOP_TIMEOUT
         INTERVAL_ST=$TCPROXY_VM_STOP_INTERVAL
         ELAPSED_ST=0
@@ -120,6 +120,6 @@ check_VM_status() {
 ssh_vm() {
     testing_ssh_permission_requirements
     logsm "ssh-in"
-    $SUDOREQUIRED ssh root@localhost -i ./id_rsa_vm -o StrictHostKeyChecking=no -p"$TCPROXY_VM_SSH_PORT"
+    $SUDOREQUIRED ssh root@localhost -i ./id_rsa_vm -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -p"$TCPROXY_VM_SSH_PORT"
     logsm "ssh-out"
 }

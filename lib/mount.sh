@@ -66,7 +66,7 @@ test_VM_mount() {
     local rc=0 share
     for share in "$TC_DISK_USB" "$TC_USER" "$TC_DISK"; do
         [[ -z $share ]] && continue
-        if $SUDOREQUIRED ssh root@localhost -i ./id_rsa_vm -o StrictHostKeyChecking=no -p"$TCPROXY_VM_SSH_PORT" \
+        if $SUDOREQUIRED ssh root@localhost -i ./id_rsa_vm -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -p"$TCPROXY_VM_SSH_PORT" \
                 "mount -a && mount | grep -q //$TC_IP/$share"; then
             logm "VM mount [$share] OK..."
         else
