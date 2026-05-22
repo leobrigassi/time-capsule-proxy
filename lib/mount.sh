@@ -125,7 +125,7 @@ mount_routine() {
                 logm "Host mount [$TCPROXY_HOST_MOUNT_ROOT/$MOUNT_POINT_M] OK..."
                 break
             else
-                logsc sudo mount -t cifs //127.0.0.1/"$MOUNT_POINT_M" "$TCPROXY_HOST_MOUNT_ROOT/$MOUNT_POINT_M" -o username=root,password="$TC_PASSWORD",rw,iocharset=utf8,vers=3.0,nofail,port="$TCPROXY_VM_SMB_PORT",uid="$PUID",gid="$PGID" 2>&1
+                logsc sudo mount -t cifs //127.0.0.1/"$MOUNT_POINT_M" "$TCPROXY_HOST_MOUNT_ROOT/$MOUNT_POINT_M" -o username=root,password="$TC_PASSWORD",rw,iocharset=utf8,vers=3.0,nolease,nofail,port="$TCPROXY_VM_SMB_PORT",uid="$PUID",gid="$PGID" 2>&1
                 if [ "$LOGSC_OUTPUT" -eq 0 ]; then
                     logm "Host mount [$TCPROXY_HOST_MOUNT_ROOT/$MOUNT_POINT_M] OK..."
                     AFTER_TCPROXY_UP_TRIGGER=1
