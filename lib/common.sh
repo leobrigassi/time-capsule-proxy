@@ -37,7 +37,7 @@ check_dependencies() {
             ;;
     esac
     local missing=() cmd
-    for cmd in bash sudo whoami id uname cat md5sum awk grep head readlink pwd chmod mkdir touch rm ssh whiptail smbclient "$qemu_bin"; do
+    for cmd in bash sudo whoami id uname cat md5sum awk grep head readlink pwd chmod mkdir touch rm ssh ssh-keygen whiptail smbclient "$qemu_bin"; do
         command -v "$cmd" &>/dev/null || missing+=("$cmd")
     done
     if ! command -v curl &>/dev/null && ! command -v wget &>/dev/null; then
@@ -66,6 +66,19 @@ create_tcproxy_folder() {
         mkdir -p tcproxy
         TCPROXY_PATH=$(readlink -f .)/tcproxy
         cd tcproxy || exit 1
+    fi
+    # Heuristic guard against accidentally installing inside the tcproxy
+    # source-tree git checkout (which is also named "tcproxy"). The presence
+    # of .git/ alongside lib/installer.sh is a strong tell. We warn — not
+    # block — because a user might legitimately track their own install
+    # directory under git.
+    if [[ -d "$TCPROXY_PATH/.git" && -f "$TCPROXY_PATH/lib/installer.sh" ]]; then
+        echo "[WARN] This directory looks like the tcproxy source-tree git checkout."
+        echo "       Install-time files (data.img, id_rsa_vm, .tcproxy.env with the"
+        echo "       Time Capsule password in cleartext, etc.) will land in the working"
+        echo "       tree and may be committed by accident. Use a sister directory."
+        echo "       Continuing in 10 seconds — Ctrl-C to abort."
+        sleep 10
     fi
     TCP_ENV=$TCPROXY_PATH/.tcproxy.env
     [[ ! -e $TCP_ENV ]] && touch "$TCP_ENV"

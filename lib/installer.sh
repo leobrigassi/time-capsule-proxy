@@ -13,6 +13,37 @@ post_install_cleanup() {
     logsc sudo rm -f "$TCPROXY_PATH/.tcproxy-boot-load.timer"
 }
 
+# Generates a per-install ed25519 SSH keypair under $TCPROXY_PATH for use
+# with the VM. The VM's /etc/local.d/10-tcproxy-authkey.start reads the
+# public key from QEMU fw_cfg at first boot and installs it into
+# /root/.ssh/authorized_keys. The private key never leaves the host.
+#
+# Idempotent across re-installs that already have a tcproxy-issued pair
+# (comment starts with "tcproxy-vm@"). Force-regenerates if it finds the
+# pre-v3.3.0 shared keypair (or any other foreign key) so upgrades from
+# 3.2.x replace the shared key automatically.
+ensure_vm_keypair() {
+    local k="$TCPROXY_PATH/id_rsa_vm" comment
+    if [[ -f $k && -f ${k}.pub ]]; then
+        comment=$(awk '{print $NF}' "${k}.pub" 2>/dev/null)
+        if [[ $comment == tcproxy-vm@* ]]; then
+            logsm "Per-install VM SSH keypair already present."
+            return 0
+        fi
+        logm "Replacing pre-v3.3.0 VM SSH keypair with a per-install pair..."
+    else
+        logm "Generating per-install VM SSH keypair..."
+    fi
+    logsc rm -f "$k" "${k}.pub"
+    if ! ssh-keygen -t ed25519 -N '' -C "tcproxy-vm@$(hostname)-$(date +%s)" -f "$k" >/dev/null 2>&1; then
+        logm "[ERROR] ssh-keygen failed. Process aborted."
+        exit 1
+    fi
+    chmod 600 "$k"
+    chmod 644 "${k}.pub"
+    logsm "VM SSH keypair ready."
+}
+
 # Bring up the full VM+mount stack.
 # - Starts the VM if not already running.
 # - Verifies shares mount inside the VM.
@@ -90,6 +121,11 @@ do_install() {
     github_download
     umount_srv_tcproxy
     stopping_VM
+    # Keypair rotation must happen AFTER stopping_VM so the SSH poweroff
+    # above uses the OLD key against the OLD running VM (which still has
+    # the OLD authorized_keys in memory). Rotating earlier would force
+    # stopping_VM into a 60s timeout + sudo pkill fallback on upgrades.
+    ensure_vm_keypair
     load_VM
     check_VM_status
     testing_ssh_permission_requirements
