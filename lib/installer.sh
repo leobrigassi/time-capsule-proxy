@@ -119,9 +119,13 @@ do_install() {
         exit 1
     fi
     github_download
-    ensure_vm_keypair
     umount_srv_tcproxy
     stopping_VM
+    # Keypair rotation must happen AFTER stopping_VM so the SSH poweroff
+    # above uses the OLD key against the OLD running VM (which still has
+    # the OLD authorized_keys in memory). Rotating earlier would force
+    # stopping_VM into a 60s timeout + sudo pkill fallback on upgrades.
+    ensure_vm_keypair
     load_VM
     check_VM_status
     testing_ssh_permission_requirements
