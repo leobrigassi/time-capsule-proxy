@@ -1,7 +1,7 @@
 #!/bin/bash
 # tcproxy — single-file release build.
 # Source: https://github.com/leobrigassi/tcproxy
-# Built: 2026-05-22T23:06:47Z from commit 29fc39c
+# Built: 2026-05-25T20:04:04Z from commit e190d0b
 
 # === lib/config.sh ===
 # tcproxy — configuration constants.
@@ -9,8 +9,8 @@
 # Edit values here to change behavior without touching logic.
 
 # === Version ===
-TCPROXY_COMMIT=v3.3.1
-TCPROXY_RELEASE=v3.3.1
+TCPROXY_COMMIT=v3.3.2
+TCPROXY_RELEASE=v3.3.2
 # Format: /heads/<branch> for branch builds, /tags/<version> for releases.
 TCPROXY_BRANCH=/heads/dev
 
@@ -615,7 +615,7 @@ mount_routine() {
                 logm "Host mount [$TCPROXY_HOST_MOUNT_ROOT/$MOUNT_POINT_M] OK..."
                 break
             else
-                logsc sudo mount -t cifs //127.0.0.1/"$MOUNT_POINT_M" "$TCPROXY_HOST_MOUNT_ROOT/$MOUNT_POINT_M" -o username=root,password="$TC_PASSWORD",rw,iocharset=utf8,vers=3.0,nolease,nofail,port="$TCPROXY_VM_SMB_PORT",uid="$PUID",gid="$PGID" 2>&1
+                logsc sudo mount -t cifs //127.0.0.1/"$MOUNT_POINT_M" "$TCPROXY_HOST_MOUNT_ROOT/$MOUNT_POINT_M" -o username=root,password="$TC_PASSWORD",rw,iocharset=utf8,vers=3.0,nofail,port="$TCPROXY_VM_SMB_PORT",uid="$PUID",gid="$PGID" 2>&1
                 if [ "$LOGSC_OUTPUT" -eq 0 ]; then
                     logm "Host mount [$TCPROXY_HOST_MOUNT_ROOT/$MOUNT_POINT_M] OK..."
                     AFTER_TCPROXY_UP_TRIGGER=1
