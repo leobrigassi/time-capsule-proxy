@@ -86,7 +86,7 @@ test_VM_mount() {
 wait_smb_ready() {
     local max_wait=10 i
     for ((i=0; i<max_wait; i++)); do
-        if smbclient -L 127.0.0.1 --port="$TCPROXY_VM_SMB_PORT" -N &>/dev/null; then
+        if smbclient -L 127.0.0.1 --port="$TCPROXY_VM_SMB_PORT" -N --option='client min protocol=SMB2' --option='client max protocol=SMB3' &>/dev/null; then
             [[ $i -gt 0 ]] && logsm "VM samba became ready after ${i}s"
             return 0
         fi
@@ -98,11 +98,14 @@ wait_smb_ready() {
 
 # Verifies each configured share is reachable via smbclient on the loopback
 # samba port exposed by the VM. Returns the last smbclient exit code.
+# Protocol is pinned to SMB2/3 so a host smb.conf carrying legacy
+# Time Capsule tweaks (client min/max protocol = NT1) can't force the
+# probe down to SMB1, which the VM's samba rejects (issue #58).
 check_smb_share() {
     VM_SMB_CHECK=0
-    if [[ -n $TC_DISK_USB ]]; then smbclient //127.0.0.1/"$TC_DISK_USB" -U root%"$TC_PASSWORD" --port="$TCPROXY_VM_SMB_PORT" -c 'exit'; VM_SMB_CHECK=$?; if [[ $VM_SMB_CHECK -ne 0 ]]; then echo "[ERROR] Failed to access $TC_DISK_USB"; else echo "VM samba share [$TC_DISK_USB] OK..."; fi ; fi
-    if [[ -n $TC_USER ]]; then smbclient //127.0.0.1/"$TC_USER" -U root%"$TC_PASSWORD" --port="$TCPROXY_VM_SMB_PORT" -c 'exit'; VM_SMB_CHECK=$?; if [[ $VM_SMB_CHECK -ne 0 ]]; then echo "[ERROR] Failed to access $TC_USER"; else echo "VM samba share [$TC_USER] OK..."; fi ; fi
-    if [[ -n $TC_DISK ]]; then smbclient //127.0.0.1/"$TC_DISK" -U root%"$TC_PASSWORD" --port="$TCPROXY_VM_SMB_PORT" -c 'exit'; VM_SMB_CHECK=$?; if [[ $VM_SMB_CHECK -ne 0 ]]; then echo "[ERROR] Failed to access $TC_DISK"; else echo "VM samba share [$TC_DISK] OK..."; fi ; fi
+    if [[ -n $TC_DISK_USB ]]; then smbclient //127.0.0.1/"$TC_DISK_USB" -U root%"$TC_PASSWORD" --port="$TCPROXY_VM_SMB_PORT" --option='client min protocol=SMB2' --option='client max protocol=SMB3' -c 'exit'; VM_SMB_CHECK=$?; if [[ $VM_SMB_CHECK -ne 0 ]]; then echo "[ERROR] Failed to access $TC_DISK_USB"; else echo "VM samba share [$TC_DISK_USB] OK..."; fi ; fi
+    if [[ -n $TC_USER ]]; then smbclient //127.0.0.1/"$TC_USER" -U root%"$TC_PASSWORD" --port="$TCPROXY_VM_SMB_PORT" --option='client min protocol=SMB2' --option='client max protocol=SMB3' -c 'exit'; VM_SMB_CHECK=$?; if [[ $VM_SMB_CHECK -ne 0 ]]; then echo "[ERROR] Failed to access $TC_USER"; else echo "VM samba share [$TC_USER] OK..."; fi ; fi
+    if [[ -n $TC_DISK ]]; then smbclient //127.0.0.1/"$TC_DISK" -U root%"$TC_PASSWORD" --port="$TCPROXY_VM_SMB_PORT" --option='client min protocol=SMB2' --option='client max protocol=SMB3' -c 'exit'; VM_SMB_CHECK=$?; if [[ $VM_SMB_CHECK -ne 0 ]]; then echo "[ERROR] Failed to access $TC_DISK"; else echo "VM samba share [$TC_DISK] OK..."; fi ; fi
     return $VM_SMB_CHECK
 }
 
