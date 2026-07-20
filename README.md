@@ -132,7 +132,6 @@ cd tcproxy
 
 **Additional Notes:**
 
-* tcproxy does not phone home. No data is sent to any server during install, use, or uninstall.
 * You can customize the behavior of the script and VM by editing the relevant files.
 * Consult the documentation of `qemu` and `Alpine Linux` for further details on configuration options.
 
